@@ -14,17 +14,19 @@
         	<img src="../images/logoleft.png" alt="helix_logo_left" border="0" id="logoLeft" onclick=""/>
         	<img src="../images/logoRight.png" alt="helix_logo_right" border="0" id="logoRight" onclick=""/>
     	</div>
+    	<div id="Content">
 		<?php require("../php/controller.php");?>
 		<div id="obsScrollbar" onscroll="syncScrolls(this)">
 			<div id="scrollContentOverflow">
 			</div>
+		</div>
 		</div>
 	</body>
 	
 	<script type="text/javascript">
 			function loadObsGrids(){
 				window.addEventListener('resize', redrawData, false);
-				var tableParams = jQuery.parseJSON ('<?php echo $tableParamsArray; ?>');
+				var tableParams = jQuery.parseJSON ('<?php echo $json["tableParams"]; ?>');
 
 				for (var key in tableParams) {
 					if(tableParams.hasOwnProperty(key)){
@@ -37,7 +39,7 @@
 			
 			
 			function getTableIds(){
-				var tableIds = jQuery.parseJSON ('<?php echo $tableIds; ?>');
+				var tableIds = jQuery.parseJSON ('<?php echo $json["tableIds"]; ?>');
 				tableIds = reMapKeys(tableIds["0"]);
 				return tableIds;
 			}

@@ -49,7 +49,7 @@ class Patient {
     }
     
     private function createTableName(){
-    	$name = 'Test'.$this->hosNum;
+    	$name = 'Testy'.$this->hosNum;
     	return $name;
     }
    

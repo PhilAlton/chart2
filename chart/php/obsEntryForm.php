@@ -9,11 +9,12 @@
         	<img src="../images/logoleft.png" alt="helix_logo_left" border="0" id="logoLeft" onclick=""/>
         	<img src="../images/logoRight.png" alt="helix_logo_right" border="0" id="logoRight" onclick=""/>
     </div>
-
+    <div id="Content">
     	<div id="enterObs">
       		<h1>Enter Obs <span style="float:right;">Patient: <?php echo $patient->patName;?></span></h1>
       		
       		<form method="post" action="controller.php" name="enterObs">
+      			<input type="hidden" name="action" id="action" value="addObs">
       			<input type="hidden" name="addObs" id="addObs" value="<?php echo $patient->patNum; ?>">
 				<input type="hidden" name="chsi" id="chsi" value="<?php echo $sessionId; ?>">
 				<p><div><label for="bloodPressure">Blood Pressure: </label><input class="dataEntryHalfLeft" type="text" name="bloodPressureSystolic"/><b>/</b><input class="dataEntryHalfRight" type="text" name="bloodPressureDiastolic"/> mm/Hg</div></p>
@@ -35,13 +36,16 @@
 				</div></p>
 				<p><div class="buttons">
 					<button class="submitButton" type="submit">Submit</button>
-					<a href="<?php echo $cancelRedirect; ?>">
+					<a href="<?php echo "obsChart.php?chsi=".$sessionId; ?>">
 						<input class="cancelButton" type="button" value="Cancel" />
 					</a>
 				</div></p>
       		</form>
+      		
+    	</div>
     	</div>
 	</body>
+	
 		
 
 </body>

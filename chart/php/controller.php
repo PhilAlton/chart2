@@ -1,131 +1,203 @@
-<script src="../importedLibraries/jquery-1.11.2.min.js"></script>
-<script src="../js/graph.js"></script>
-
 <?php
+	require("include.php");
 
-	require("sortObsData.php");
-	require("DataAnalysis.php");
-	require("session.php");
-	require("database.php");
-	require("testData.php");
-	require("obsChartClass.php");
-	require("patient.php");
-	require("tableClass.php");
-
-	define("DB_HOST", "localhost");
-	define("DB_USER", "User");
-	define("DB_PASSWORD", "PcBDmjqAF9D8WrNG");
-	define("DB_NAME", "chart001");
+	$currentPage = getCurrentPage();
 	
-	// declaration of constants
-	define("CELL_HEIGHT", 25);
-	define("NUMBER_OF_CELL_COLUMNS", 12);
-	
-	// colour constants -- CHANGE NAME TO COLOUR_X etc.
-	define("BG_RED", "ff9999");
-	define("BG_ORANGE", "ffbb99");
-	define("BG_GREEN", "ccffcc");
-	define("BG_GREY", "bfbfbf");
-	define("BG_WHITE", "ffffff");
-	define("BG_BLUE", "ccddff");
-	define("BG_DARK_BLUE", "3385ff");
-	
-	date_default_timezone_set("Europe/London"); 
-	
-	if(getCurrentPage()== "controller.php"){
-		if(isset($_POST['login'])){
-			if($_POST['login']){
-				$username = $_POST['username'];
-				$password = $_POST['password'];
-				$login = validateLogin($username, $password);
-				if($login){
-					$session = new session();
-					$sessionData = array();
-					$sessionData['lock'] = $username;
-					$sessionData['key'] = $password;
-					$sessionData['patId'] = '000000000'; ///////////////////Test patient
-					$session->_write($session->id, $sessionData);
-					loadDefaultPage($session->id);
-				}else{
-					header("location:login.php?login=invalid");
+	switch($currentPage){
+		case "controller.php":
+			
+			if(isset($_POST['action'])){
+				$action = $_POST['action'];
+				switch($action){
+					case "login":
+						atemptLogin($_POST['username'], $_POST['password']);
+						break;
+					case "searchPatients":
+						searchPatients($_POST);
+						break;
+					case "selectPatient":
+						storePatientId($_POST["patId"]);
+						break;
+					case "addObs":
+						addObs($_POST);
+						loadObs("obsChart.php");
+						break;
+					default:
+						break;
 				}
 			}
-		}else if(isset($_POST['addObs'])){
-				$obsSet = getObsSetArray();
+			break;
+		case "login.php":
+			//importJs();
+			if(checkLoginStatus()){
+			//	loadPage();
+			}
+			break;
+		default:
+			importJs();
+			if(checkLoginStatus()){
+				$session = new session(getSessionId());
+				$sessionData = $session->_read($session->id);
+				$currentPage = getCurrentPage();
+				switch($currentPage){
+					case "obsChart.php":
+						$json = initObsChartPage($session, $sessionData);
+						break;
+					case "obsEntryForm.php":
+						$patient = initObsEntryFormPage($session, $sessionData);
+						$sessionId = getSessionId();
+						break;
+				}
+			}else{
+				loadPage();
+			}
+			break;
+	}
 
-				$timestamp = strtotime("now");
-				$obsSet["date"] = date("d/m/Y", $timestamp);
-				$obsSet["time"] = date("H:i", $timestamp);
-				$obsSet["respRate"] = $_POST["respiratoryRate"];
-				$obsSet["spO2"] =$_POST["spO2"];
-				$obsSet["inspiredO2"] = $_POST["o2Flow"]."L";
-				$obsSet["temp"] =$_POST["temperature"];
-				$obsSet["sistBP"] =$_POST["bloodPressureSystolic"];
-				$obsSet["diastBP"] =$_POST["bloodPressureDiastolic"];
-				$obsSet["heartRate"] =$_POST["heartRate"];
-				$obsSet["AVPU"] ="A";//$_POST[];
-				$obsSet["bloodSugar"] ="";//$_POST[];
-				$obsSet["totalScore"] ="";
-				$obsSet["painScore"] ="";
-				$obsSet["urineOutput"] ="";//$_POST[];
-				$obsSet["frequency"] ="";//$_POST[];
-				$obsSet["escPlan"] ="";//$_POST[];
-				$obsSet["initial"] ="";//$_POST[];
-				$obsSet["O2Route"] ="";
-				
-				$patient = new Patient($_POST['addObs']);
-				$patient->addObsSet($obsSet);
-				
-				loadDefaultPage($_POST['chsi']);
-				
+	
+	function importJs(){
+		echo '<script src="../importedLibraries/jquery-1.11.2.min.js"></script>';
+		echo '<script src="../js/graph.js"></script>';
+	}
+	
+	function checkLoginStatus(){
+		$result = false;
+		if(getSessionId()!= ""){
+			$result = true;
 		}
-	}else if(getCurrentPage()== "login.php"){
+		return $result;
+	}
+	
+	function getSessionId(){
+		$result = "";
 		if(isset($_GET["chsi"])){
-			loadDefaultPage($_GET["chsi"]);
+			$result = $_GET["chsi"];
 		}
-	}else{
-		if(isset($_GET["chsi"])){
-			//$session = new session("4910b4p8d4bq10gfsn80v0vvn2");
-			$session = new session($_GET["chsi"]);
-			$sessionData = $session->_read($session->id);
-			if(getCurrentPage()== "obsChart.php"){
-				if(!$sessionData->patId){
-					//navigate to patient selection page
-					exit;
-				}
+		return $result;
+	}
+	
+	function loadPage($page = "selectPatient.php", $sessionId = false){
+		if($sessionId == false){
+			if(checkLoginStatus()){
+				$sessionId = getSessionId();
+			}
+		}
+		if($sessionId == false){
+			header("location:login.php");
+		}else{
+			header("location:".$page."?chsi=".$sessionId);
+		}
+	}
+	
+	
+	function atemptLogin($username, $password){
+		$login = validateLogin($username, $password);
+		$result = false;
+		if($login){
+			$session = new session();
+			$sessionData = array();
+			$sessionData['lock'] = $username;
+			$sessionData['key'] = $password;
+			$sessionData['patId'] = '000000000'; ///////////////////Test patient
+			$session->_write($session->id, $sessionData);
+			$result=$session->id;
+			//loadDefaultPage($session->id);
+		}
+		print json_encode($result);
+	}
+	
+	function searchPatients($params){
+		$db = new Database();
+		$paramNum = 0;
+		$query = 'SELECT * FROM `CH013` WHERE ';
+		if($params["hosNum"] != ""){
+			$query = $query."`Field01`='".$params["hosNum"]."'";
+		}
+		if($params["firstName"] != ""){
+			if($paramNum > 0){
+				$query = $query.' AND ';
+				$paramNum++;
+			}
+			$query = $query."`Field05`='".$params["firstName"]."'";
+			
+			
+		}
+		if($params["lastName"] != ""){
+			if($paramNum > 0){
+				$query = $query.' AND ';
+				$paramNum++;
+			}
+			$query = $query."`Field06`='".$params["lastName"]."'";
+		}
+		if($params["dob"] != ""){
+			if($paramNum > 0){
+				$query = $query.' AND ';
+				$paramNum++;
+			}
+			$dob = date("Y-m-d", strtotime($params["dob"]));
+			$query = $query."`Field04`='".$dob."'";
+		}
 		
-				$obsChart = new obsChart($sessionData->patId);
-				//$obsChart = new obsChart('000000000');
-				$obsChart->generateTables();
-				
-				///////Load test data into table//////////
-				/*$data= getPatientTestData();
-				$data = calculateObsScores($data);
-				
-				foreach($data as $row){
-					$obsChart->patient->addObsSet($row);
-				}
-				*/
-				/////////////////////////////////////////
-				
-				$tableParamsArray = $obsChart->getTableParams();
-				//echo count($tableParamsArray[0]['dataLeft']['date'])." \n ".count($tableParamsArray[0]['dataLeft']['spO2']);
-				//var_dump($tableParamsArray[1]['dataLeft']);	
-				
-				$tableParamsArray = json_encode($tableParamsArray,JSON_FORCE_OBJECT);
-				$tableIds = json_encode($obsChart->getTableIds(),JSON_FORCE_OBJECT);
-			}else if(getCurrentPage()== "obsEntryForm.php"){
-				$patient = new Patient($sessionData->patId);
-				$sessionId = $_GET["chsi"];
-				$cancelRedirect = "obsChart.php?chsi=".$sessionId;
-				
+		$db->query($query);
+	
+		// Attempt execution
+		// If successful
+		if($db->execute()){
+			$results = $db->resultset();
+			for($i=0;$i<count($results);$i++){
+				$dob = date("d/m/Y", strtotime($results[$i]["Field04"]));
+				$results[$i]["Field04"]=$dob;
 			}
 		}else{
-			header("location:login.php");
+			//echo 'Failed to add obs';
 		}
 		
+		//$results = array($query);
+		print json_encode($results,JSON_FORCE_OBJECT);
 		
 	}
+	
+	function storePatientId($patId){
+		//echo "in";
+		$session = new session(getSessionId());
+		$sessionData = $session->_read($session->id);
+		$sessionData->patId = $patId;
+		$session->_write($session->id, $sessionData);
+		print json_encode($session->id);
+	}
+	
+	function addObs($obs){
+		$obsSet = getObsSetArray();
+
+		$timestamp = strtotime("now");
+		$obsSet["date"] = date("d/m/Y", $timestamp);
+		$obsSet["time"] = date("H:i", $timestamp);
+		$obsSet["respRate"] = $obs["respiratoryRate"];
+		$obsSet["spO2"] =$obs["spO2"];
+		$obsSet["inspiredO2"] = $obs["o2Flow"]."L";
+		$obsSet["temp"] =$obs["temperature"];
+		$obsSet["sistBP"] =$obs["bloodPressureSystolic"];
+		$obsSet["diastBP"] =$obs["bloodPressureDiastolic"];
+		$obsSet["heartRate"] =$obs["heartRate"];
+		$obsSet["AVPU"] ="A";//$obs[];
+		$obsSet["bloodSugar"] ="";//$obs[];
+		$obsSet["totalScore"] ="";
+		$obsSet["painScore"] ="";
+		$obsSet["urineOutput"] ="";//$obs[];
+		$obsSet["frequency"] ="";//$obs[];
+		$obsSet["escPlan"] ="";//$obs[];
+		$obsSet["initial"] ="";//$obs[];
+		$obsSet["O2Route"] ="";
+		
+		$patient = new Patient($obs['addObs']);
+		$patient->addObsSet($obsSet);
+		
+		header("location:obsChart.php?chsi=".$obs['chsi']);
+		
+
+	}
+	
+
 
 	function validateLogin($username, $password){
 		$valid = false;
@@ -152,14 +224,7 @@
 	}
 	
 
-	function loadDefaultPage($sessionId = false){
-		$defaultPage = "obsChart.php";
-		if(!$sessionId){
-			header("location:".$defaultPage);
-		}else{
-			header("location:".$defaultPage."?chsi=".$sessionId);
-		}
-	}
+	
 	
 	
 	function has_string_keys(array $array) {
@@ -177,9 +242,38 @@
 		}
 		return $currentPage;
 	}
-	
 
-	
+	function initObsChartPage($session, $sessionData){
+		if(!$sessionData->patId){
+			loadPage();
+			exit;
+		}
+
+		$obsChart = new obsChart($sessionData->patId);
+		//$obsChart = new obsChart('000000000');
+		$obsChart->generateTables();
+		
+		///////Load test data into table//////////
+		/*$data= getPatientTestData();
+		$data = calculateObsScores($data);
+		
+		foreach($data as $row){
+			$obsChart->patient->addObsSet($row);
+		}
+		*/
+		/////////////////////////////////////////
+		$json = array();
+		$tableParamsArray = $obsChart->getTableParams();
+		
+		$json["tableParams"]= json_encode($tableParamsArray,JSON_FORCE_OBJECT);
+		$json["tableIds"] = json_encode($obsChart->getTableIds(),JSON_FORCE_OBJECT);
+		return $json;
+	}
+
+	function initObsEntryFormPage($session, $sessionData){
+		$patient = new Patient($sessionData->patId);
+		return $patient;
+	}
 	
 
 ?>

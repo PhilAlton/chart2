@@ -1,11 +1,58 @@
+function numberOfCols(){
+	var cols = 12;
+	if(window.innerWidth < 1400 && window.innerWidth > 945){
+		cols = 6;
+	}else if(window.innerWidth < 945){
+		cols = 3;
+	}
+	return cols;
+}
+
+function cloneObj(obj){
+	return JSON.parse(JSON.stringify(obj));
+}
+
+function joinData(dataLeft, dataRight, numOfCols, multiData){
+	var result = {"dataLeft":[],"dataRight":[]};
+	var slice = 12-numOfCols;
+	if(multiData){
+		for (var key in dataRight) {
+			if(dataRight.hasOwnProperty(key)){
+				//console.log(key);
+				var right = dataRight[key].slice(0,slice);
+				dataRight[key]=dataRight[key].slice(slice,12);
+				var temp = cloneObj(dataLeft[key]);
+				dataLeft[key] = temp.concat(right);
+			}
+		}
+	}else{
+		var right = dataRight.slice(0,slice);
+		dataRight = dataRight.slice(slice,12);
+		dataLeft = dataLeft.concat(right);
+	}
+	result["dataLeft"]=dataLeft;
+	result["dataRight"]=dataRight;
+	return result;
+}
+
 function loadTables(params){
 
-	var numOfVisibleCols = 12;
+	var numOfVisibleCols = numberOfCols();
+	//console.log(window.innerWidth);
 	var numOfColsLeft = numOfVisibleCols;
 	var numOfColsRight = numOfVisibleCols;
 	//console.log(params);
 	params["dataLeft"]= reMapKeys(params["dataLeft"], params["multiData"]);
 	params["dataRight"]= reMapKeys(params["dataRight"], params["multiData"]);
+	
+	var originalDataLeft = cloneObj(params["dataLeft"]);
+	var originalDataRight = cloneObj(params["dataRight"]);
+	
+	if(numOfVisibleCols<12){
+		var data = joinData(params["dataLeft"], params["dataRight"],numOfVisibleCols, params["multiData"]);
+		params["dataLeft"]=data["dataLeft"];
+		params["dataRight"]=data["dataRight"];
+	}
 	
 	var dataLengthLeft = params["dataLeft"].length;
 	var dataLengthRight = params["dataRight"].length;          
@@ -24,12 +71,12 @@ function loadTables(params){
 	}
 	
 	
-	setGridData(params["dataLeft"], params["id"]+"Left", params["stepSize"], params["minVal"], params["maxVal"], params["highlights"], params["multiData"], numOfColsLeft, dataLengthLeft, numOfVisibleCols, params["sections"]);
-	setGridData(params["dataRight"], params["id"]+"Right", params["stepSize"], params["minVal"], params["maxVal"], params["highlights"], params["multiData"], numOfColsRight, dataLengthRight, numOfVisibleCols, params["sections"]);
+	setGridData("left",originalDataLeft, originalDataRight, params["id"]+"Left", params["stepSize"], params["minVal"], params["maxVal"], params["highlights"], params["multiData"], numOfColsLeft, dataLengthLeft, numOfVisibleCols, params["sections"]);
+	setGridData("right",originalDataRight,"", params["id"]+"Right", params["stepSize"], params["minVal"], params["maxVal"], params["highlights"], params["multiData"], numOfColsRight, dataLengthRight, numOfVisibleCols, params["sections"]);
 }                                                                                                                                                          
                                                                                                                  
-function setGridData(dataSet, canvasID, stepSize, minVal, maxVal, highlights, multiData, numOfCols, dataLength, numOfVisibleCols, sections){
-	var gridData = {'data':dataSet, 'step':stepSize, 'min':minVal, 'max':maxVal, 'highlights':highlights, 'multiData':multiData, 'numOfCols':numOfCols, 'dataLength':dataLength, 'numOfVisibleCols':numOfVisibleCols, 'sections':sections};
+function setGridData(side,dataSet, dataRight, canvasID, stepSize, minVal, maxVal, highlights, multiData, numOfCols, dataLength, numOfVisibleCols, sections){
+	var gridData = {'side':side, 'data':dataSet, 'dataRight':dataRight, 'step':stepSize, 'min':minVal, 'max':maxVal, 'highlights':highlights, 'multiData':multiData, 'numOfCols':numOfCols, 'dataLength':dataLength, 'numOfVisibleCols':numOfVisibleCols, 'sections':sections};
 	
 	var json = JSON.stringify(gridData);                                                                              
 	
@@ -43,6 +90,43 @@ function getGridData(canvasID){
 	var gridData = jQuery.parseJSON (json);
 	
 	gridData['data'] = reMapKeys(gridData['data'], gridData["multiData"]);
+	gridData['dataRight'] = reMapKeys(gridData['data'], gridData["multiData"]);
+	
+	var numOfVisibleCols = numberOfCols();
+	
+	if(numOfVisibleCols<12){
+		if(canvasID == "dateAndTimeRight"){   
+		console.log(gridData);
+	}
+		if(gridData['side']=="left"){
+			var data = joinData(gridData['data'], gridData['dataRight'],numOfVisibleCols, gridData["multiData"]);
+			gridData['data']=data["dataLeft"];
+		}else{
+			var data = joinData(gridData['data'], gridData['data'],numOfVisibleCols, gridData["multiData"]);
+			gridData['data']=data["dataRight"];
+		}
+	}
+
+	gridData['numOfVisibleCols']=numOfVisibleCols;
+	
+	var dataLength = gridData['data'].length;   
+	
+	if(gridData["multiData"]){   
+		dataLength = gridData['data'][Object.keys(gridData['data'])[0]].length;
+	}
+	gridData['dataLength']=dataLength;
+	
+	gridData["numOfCols"] = numOfVisibleCols;
+	
+	if(gridData['side']=="left"){
+		if(dataLength > numOfVisibleCols){
+			gridData["numOfCols"] = dataLength;
+		}
+	}else{
+		if(dataLength > numOfVisibleCols){
+			gridData["numOfCols"] = dataLength;                                                      
+		}
+	}
 	
 	return gridData;
 	
@@ -92,6 +176,12 @@ function redrawData(){
 	drawObsGrid("spO2Left");
 	drawObsGrid("avpuLeft");
 	resizeScrollbar();
+	var logoRight = document.getElementById("logoRight");
+	if(window.innerWidth <945){
+		logoRight.style.display = 'none';
+	}else{
+		logoRight.style.display = 'block';
+	}
 }
 
 function getTextX(scaleX){
@@ -193,7 +283,7 @@ function plotOxygenData(canvasID){
 		context.moveTo(x,y);
 		
 		context.fillStyle = "black";
-		console.log(gridData['data']);
+		//console.log(gridData['data']);
 		context.fillText(data[0],textX,y);
 		
 		for (var i = 1; i < gridData['dataLength']; i++) {

@@ -23,6 +23,7 @@ class obsChart{
 		
 		$data = calculateObsScores($data);
 		$this->patient->obsData = $data;
+		
 		$data = getDisplayData($data);
 		
 		$this->hearderTable = array();
@@ -425,7 +426,7 @@ class obsChart{
 	}
 	
 	private function bottomTable(){
-		echo '<div class="category" style="height:'.(CELL_HEIGHT*4).'px">';
+		echo '<div class="category" style="height:'.(CELL_HEIGHT*4).'px; padding-bottom:25px;">';
 			echo '<table>';
 				echo '<td class="titleContainer" bgcolor="'.BG_BLUE.'">';
 					echo '<table>';
