@@ -36,8 +36,6 @@ class obsChart{
         $this->avpuTable = new obsTable("avpu");
         $this->bldSugarTable = new obsTable("bloodSugar");
         $this->totalScoreTable = new obsTable("totalScore"); 
-        $this->addParamsTable = new obsTable("addParams");
-        $this->bottomTable = new obsTable("bottom");
         
         $this->initTableData($data);
     }
@@ -124,33 +122,19 @@ class obsChart{
 		$this->avpuTable->setMinVal(0.5);
 		$this->avpuTable->setMaxVal(2.5);
 		
-		$this->bldSugarTable->setHighlights(array());
+		$this->bldSugarTable->setHighlights(array(2=>BG_RED));
 		$this->bldSugarTable->setDataLeft($data['dataLeft']['bloodSugar']);
 		$this->bldSugarTable->setDataRight($data['dataRight']['bloodSugar']);
 		$this->bldSugarTable->setStepSize(1);
 		$this->bldSugarTable->setMinVal(1);
 		$this->bldSugarTable->setMaxVal(1);
 		
-		$this->totalScoreTable->setHighlights(array());
+		$this->totalScoreTable->setHighlights(array(2=>BG_RED));
 		$this->totalScoreTable->setDataLeft($data['dataLeft']['totalScore']);
 		$this->totalScoreTable->setDataRight($data['dataRight']['totalScore']);
 		$this->totalScoreTable->setStepSize(1);
 		$this->totalScoreTable->setMinVal(1);
 		$this->totalScoreTable->setMaxVal(1);
-		
-		$this->addParamsTable->setHighlights(array());
-		$this->addParamsTable->setDataLeft($data['dataLeft']['bloodSugar']);
-		$this->addParamsTable->setDataRight($data['dataRight']['bloodSugar']);
-		$this->addParamsTable->setStepSize(1);
-		$this->addParamsTable->setMinVal(0.5);
-		$this->addParamsTable->setMaxVal(3.5);
-		
-		$this->bottomTable->setHighlights(array());
-		$this->bottomTable->setDataLeft($data['dataLeft']['bloodSugar']);
-		$this->bottomTable->setDataRight($data['dataRight']['bloodSugar']);
-		$this->bottomTable->setStepSize(1);
-		$this->bottomTable->setMinVal(0.5);
-		$this->bottomTable->setMaxVal(4.5);
     }
     
     public function generateTables(){
@@ -410,10 +394,9 @@ class obsChart{
 					echo '</table>';
 				echo '</td>';
 				echo '<td class="cells">';
-					echo'<div class="graphContainerLeft" style="height:'.(CELL_HEIGHT*3).'px" onscroll="syncScrolls(this)">';
-						echo '<canvas class="graph" id="addParamsLeft" height='.(CELL_HEIGHT*3).'px">';
-						echo '</canvas>';
-					echo'</div>';
+					echo '<table>';
+						$this->addCellRows(array(0,0,0));
+					echo '</table>';
 				echo '</td>';
 				echo '<td class="severity">';
 					echo '<table>';
@@ -421,10 +404,9 @@ class obsChart{
 					echo '</table>';
 				echo '</td>';
 				echo '<td class="cells">';
-					echo'<div class="graphContainerRight" style="height:'.(CELL_HEIGHT*3).'px">';
-						echo '<canvas class="graph" id="addParamsRight" height='.(CELL_HEIGHT*3).'px">';
-						echo '</canvas>';
-					echo'</div>';
+					echo '<table>';
+						$this->addCellRows(array(0,0,0));
+					echo '</table>';
 				echo '</td>';
 				echo '<td class="values" bgcolor="'.BG_BLUE.'">';
 					echo '<table>';
@@ -456,10 +438,9 @@ class obsChart{
 					echo '</table>';
 				echo '</td>';
 				echo '<td class="cells">';
-					echo'<div class="graphContainerLeft" style="height:'.(CELL_HEIGHT*4).'px" onscroll="syncScrolls(this)">';
-						echo '<canvas class="graph" id="bottomLeft" height='.(CELL_HEIGHT*4).'px">';
-						echo '</canvas>';
-					echo'</div>';
+					echo '<table>';
+						$this->addCellRows(array(0,0,0,0));
+					echo '</table>';
 				echo '</td>';
 				echo '<td class="severity">';
 					echo '<table>';
@@ -467,10 +448,9 @@ class obsChart{
 					echo '</table>';
 				echo '</td>';
 				echo '<td class="cells">';
-					echo'<div class="graphContainerRight" style="height:'.(CELL_HEIGHT*4).'px">';
-						echo '<canvas class="graph" id="bottomRight" height='.(CELL_HEIGHT*4).'px">';
-						echo '</canvas>';
-					echo'</div>';
+					echo '<table>';
+						$this->addCellRows(array(0,0,0,0));
+					echo '</table>';
 				echo '</td>';
 				echo '<td class="values" bgcolor="'.BG_BLUE.'">';
 					echo '<table>';
@@ -593,9 +573,7 @@ class obsChart{
 						$this->heartRateTable->getTableId(),
 						$this->avpuTable->getTableId(),
 						$this->bldSugarTable->getTableId(),
-						$this->totalScoreTable->getTableId(),
-						$this->addParamsTable->getTableId(),
-						$this->bottomTable->getTableId()
+						$this->totalScoreTable->getTableId()
 						);
 
 		return array($result);
@@ -613,8 +591,6 @@ class obsChart{
     	array_push($result,$this->avpuTable->jsonSerialize());
     	array_push($result,$this->bldSugarTable->jsonSerialize());
     	array_push($result,$this->totalScoreTable->jsonSerialize());
-    	array_push($result,$this->addParamsTable->jsonSerialize());
-    	array_push($result,$this->bottomTable->jsonSerialize());
     	
     	return $result;
     }

@@ -21,12 +21,8 @@ function joinData(dataLeft, dataRight, numOfCols, multiData){
 				//console.log(key);
 				var right = dataRight[key].slice(0,slice);
 				dataRight[key]=dataRight[key].slice(slice,12);
-				
-				//console.log("before= "+dataLeft[key].length);
-				//console.log(dataLeft[key]);
-				dataLeft[key] = dataLeft[key].concat(right);
-				//console.log("after= "+dataLeft[key].length);
-				
+				var temp = cloneObj(dataLeft[key]);
+				dataLeft[key] = temp.concat(right);
 			}
 		}
 	}else{
@@ -100,10 +96,10 @@ function getGridData(canvasID){
 	
 	if(numOfVisibleCols<12){
 		if(canvasID == "dateAndTimeRight"){   
-		//console.log(gridData);
+		console.log(gridData);
 	}
 		if(gridData['side']=="left"){
-			var data = joinData(cloneObj(gridData['data']), cloneObj(gridData['dataRight']),numOfVisibleCols, gridData["multiData"]);
+			var data = joinData(gridData['data'], gridData['dataRight'],numOfVisibleCols, gridData["multiData"]);
 			gridData['data']=data["dataLeft"];
 		}else{
 			var data = joinData(gridData['data'], gridData['data'],numOfVisibleCols, gridData["multiData"]);
@@ -160,20 +156,25 @@ function reMapKeys(dataSet, multiData){
 }
 
 function redrawData(){
+	drawObsGrid("dateAndTimeRight");
+	drawObsGrid("tempRight");
+	drawObsGrid("BPRight");
+	drawObsGrid("heartRateRight");
+	drawObsGrid("bloodSugarRight");
+	drawObsGrid("totalScoreRight");
+	drawObsGrid("respRateRight");
+	drawObsGrid("spO2Right");
+	drawObsGrid("avpuRight");
 	
-	var tableIds = getTableIds();
-	for(var i = 0; i<tableIds.length; i++){
-		var elementId = tableIds[i];
-		elementId = elementId+"Right";
-		drawObsGrid(elementId);
-	}
-	
-	for(var i = 0; i<tableIds.length; i++){
-		var elementId = tableIds[i];
-		elementId = elementId+"Left";
-		drawObsGrid(elementId);
-	}
-
+	drawObsGrid("dateAndTimeLeft");
+	drawObsGrid("tempLeft");
+	drawObsGrid("BPLeft");
+	drawObsGrid("heartRateLeft");   
+	drawObsGrid("bloodSugarLeft");
+	drawObsGrid("totalScoreLeft");
+	drawObsGrid("respRateLeft");
+	drawObsGrid("spO2Left");
+	drawObsGrid("avpuLeft");
 	resizeScrollbar();
 	var logoRight = document.getElementById("logoRight");
 	if(window.innerWidth <945){
@@ -369,7 +370,6 @@ function plotSingleRow(canvasID, totalScore) {
 			context.font = "20pt Helvetica";
 			//console.log(total+"    "+gridData['data'][0]);
 			data = gridData['data'][0]['score'];
-			//console.log(gridData['data']);
 			//console.log(gridData['data'][1]);
 			if(gridData['data'][0]['esc'] === "No"){
 				if(gridData['data'][0]['score']>0){
@@ -749,11 +749,10 @@ function syncScrolls(target){
 	var tableIds = getTableIds();
 	tableIds.push("scrollContentOverflow");
 	var table = false;
-	//console.log(tableIds);
+	
 	for(var i = 0; i<tableIds.length; i++){
 		var elementId = tableIds[i];
 		if(elementId != "scrollContentOverflow"){
-			
 			elementId = elementId+"Left";
 			table = true;
 		}

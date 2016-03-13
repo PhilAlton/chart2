@@ -13,9 +13,6 @@ function testModule(){
 function calculateObsScores($obsDataSet){
 	for($i=0;$i<count($obsDataSet);$i++){
 		$score = NEWScore($obsDataSet[$i]["respRate"], $obsDataSet[$i]["spO2"], $obsDataSet[$i]["inspiredO2"], $obsDataSet[$i]["temp"], $obsDataSet[$i]["sistBP"], $obsDataSet[$i]["heartRate"], $obsDataSet[$i]["AVPU"]);
-		if($score[1]==""){
-			$score[1]="!";
-		}
 		$obsDataSet[$i]["totalScore"] =$score[1];
 		$obsDataSet[$i]["escPlan"] =$score[0];
 		
