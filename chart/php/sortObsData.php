@@ -87,13 +87,13 @@ function separateData($dataSet){
 				$result[$key] = array();
 			}
 			
+			if($key != "totalScore"){
 			if(($value === NULL) || ($value == "NULL") || ($value == 0)){
 				$value = "";
 			}
+			}
 			if($key == "totalScore"){
-				if($value == ""){
-					$value = "0";
-				}
+				
 				$total = $value;
 				$esc = $obsSet["escPlan"];
 				$value = array('score'=>$total,'esc'=>$esc);

@@ -24,7 +24,6 @@ function calculateObsScores($obsDataSet){
 		$score = ACEWScore($obsDataSet[$i]);
 		
 		If ($score[1] === 0){$score[1] = "0";}
-		
 		$obsDataSet[$i]["totalScore"] =$score[1];
 		$obsDataSet[$i]["escPlan"] =$score[0];
 	}                      
@@ -136,8 +135,8 @@ function ACEWScore($patientObsDataSet, $triggerArray = array(2,4,6)) {
 	foreach ($observationsArray as $observation){
 		$ACEWScore += $scoreArray[$observation];
 	}
-	If($ACEWScore > $triggerArray[1]){$qTrigger = $qTrigger * 2;}
-	elseIf($ACEWScore > $triggerArray[2]){$qTrigger = $qTrigger * 3;}
+	If($ACEWScore > $triggerArray[2]){$qTrigger = $qTrigger * 3;}
+	elseIf($ACEWScore > $triggerArray[1]){$qTrigger = $qTrigger * 2;}
 	else{$qTrigger = $qTrigger;}
 	
 	//trigger METs/escalations?
@@ -148,14 +147,21 @@ function ACEWScore($patientObsDataSet, $triggerArray = array(2,4,6)) {
 	
 	
 	//validate input data - ensure no blanks
+	$nullValues = False;
+	$i = $ACEWScore;
 	foreach ($observationsArray as $observation){
-		If ($patientObsDataSet[$observation] == "" or $patientObsDataSet[$observation] === ""or $patientObsDataSet[$observation] == null){
+		If ($patientObsDataSet[$observation] == "" or $patientObsDataSet[$observation] === "" or $patientObsDataSet[$observation] == null or $patientObsDataSet[$observation] === 0){
+			$nullValues = True;
 			$qMET = "No";
-			$ACEWScore = "-";
+			$i = $i - 3;
 		}
-		
 	}
-	
+	If($nullValues){
+		$ACEWScore = $i."-".$ACEWScore;
+		If($i > $triggerArray[2]){$qMET = "MET";}
+		elseIf($i > $triggerArray[1]){$qMET = "Esc";}
+		else{$qMET = "No";}
+		}
 		
 	//return outcomes
 	$outcomes = array($qMET, $ACEWScore);
@@ -163,7 +169,7 @@ function ACEWScore($patientObsDataSet, $triggerArray = array(2,4,6)) {
 }
 
 
-// functino to compare parameters and return how one compares with the other
+// function to compare parameters and return how one compares with the other
 function compareParam($param, $comparitor){
 	$compareParam;
 	
