@@ -171,10 +171,14 @@ class obsChart{
     
     
     private function headerTable(){
-    	$cancelRedirect = "obsEntryForm.php?chsi=".$_GET["chsi"];
+    	$addObs = "obsEntryForm.php?chsi=".$_GET["chsi"];
+    	$selectPatient = "selectPatient.php?chsi=".$_GET["chsi"];
     	echo '<div id="title" style="color:white;">';
+    		echo '<a href="'.$selectPatient.'">';
+				echo '<input id="changePatient" type="button" value="<" />';
+			echo '</a>';
 			echo 'Observation chart for the National Early Warning Score (NEWS)';
-			echo '<a href="'.$cancelRedirect.'">';
+			echo '<a href="'.$addObs.'">';
 				echo '<input id="newObs" type="button" value="+" />';
 			echo '</a>';
 		echo '</div>';

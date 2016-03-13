@@ -27,7 +27,18 @@ body {
 	margin-right:10px;
 	border-right:solid 1px lightgrey;
 	
+	
+}
 
+#paramsContainer{
+	position:absolute;
+	
+	width:100%;
+	top:0px;
+	bottom:60px;
+	overflow-y:auto;
+	overflow-x:hidden;
+	
 }
 
 #searchResults{
@@ -43,12 +54,21 @@ body {
 #resultsContainer{
 	position:absolute;
 	
-	border:solid black 1px;	
 	width:100%;
 	top:50px;
 	bottom:60px;
 	overflow-y:auto;
 	overflow-x:hidden;
+}
+
+#noResults{
+	position:absolute;
+	top:50%;
+	left: 50%;
+    margin: 0 0 0 -70px;
+	font-weight:bold;
+	font-size:16;
+	color:lightgrey;
 }
 
 #searchResultsTable{
@@ -175,6 +195,11 @@ div.buttons {
 	
 }
 
+#searchBtnContainer{
+	width:95%;
+	
+}
+
 
 input.submitButton, input.searchButton {
   padding: 0 18px;
@@ -206,14 +231,12 @@ input.submitButton:active, input.searchButton:active {
   box-shadow: inset 0 0 3px rgba(0, 0, 0, 0.2);
 }
 
-input.submitButton{
+input.submitButton, input.searchButton{
 	float:right;
 	text-align: center;
 }
 
-button.searchButton{
-	text-align:center;
-}
+
 
 input:disabled{
 	opacity: 0.5;

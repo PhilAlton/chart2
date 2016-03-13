@@ -241,11 +241,15 @@ td.key {
 }
 
 #title {
+	position:relative;
+	margin: 0 auto;
 	font-weight: bold;
 	font-size: 18pt;
 	text-align: center;
 	color:black;
-	padding:20px;
+	padding:20px 10px 20px 10px;
+	width:98%;
+	
 }
 
 #newObs{
@@ -254,6 +258,18 @@ td.key {
 	width:50px;
 	height:50px;
 	top:-20px;
+}
+
+#changePatient{
+	position:relative;
+	float:left;
+	width:50px;
+	height:50px;
+	top:-20px;
+}
+
+#newObs, #changePatient{
+	
 	border-radius:5px;
 	
   font-weight: bold;
@@ -275,7 +291,7 @@ td.key {
   box-shadow: inset 0 1px white, 0 1px 2px rgba(0, 0, 0, 0.15);
 }
 
-#newObs:active {
+#newObs:active, #changePatient:active {
   background: #cde5ef;
   border-color: #9eb9c2 #b3c0c8 #b4ccce;
   -webkit-box-shadow: inset 0 0 3px rgba(0, 0, 0, 0.2);

@@ -16,13 +16,15 @@
 			<div id="selectPatient" class="formBox">
 				<h1 class="formBoxHeader">Search Patients <span style="float:right;">Select Patient</span></h1>
 				<div id="container">
-				<form name="login">
+				<form name="selectPatientForm">
 						<p><div id="searchParams">
+						<div id="paramsContainer">
 							<p><div><label for="hosNum">Hospital Number: </label><input type="text" id="hosNum" onkeypress="setSearchBtn()"/></div></p>
 							<p><div><label for="firstName">First Name: </label><input type="text" id="firstName" onkeypress="setSearchBtn()"/></div></p>
 							<p><div><label for="lastName">Last Name: </label><input type="text" id="lastName" onkeypress="setSearchBtn()"/></div></p>
 							<p><div><label for="dob">Date of Birth: </label><input type="text" id="dob" onkeypress="setSearchBtn()"/></div></p>
-							<p><div class="buttons">
+							</div>
+							<p><div class="buttons" id="searchBtnContainer">
 								<input class="searchButton" id="searchBtn" type="button" value="Search" onclick="searchPatients()" disabled />
 							</div></p>
 						</div></p>
@@ -35,6 +37,7 @@
 									<td>DOB</td>
 								</tr>
 							</table></div></p>
+							<label id="noResults">No Patients Found</label>
 							<p><div class="buttons">
 								<input type="button" id="submitBtn" onclick="setPatient()" name="commit" value="Submit" class="submitButton" disabled>
 							</div></p>
@@ -68,7 +71,14 @@
 						var table = document.getElementById("searchResultsTable");
 						$("#searchResultsTable tr:not(:first)").remove();
 						count = 1;
-						console.log(results);
+						var noResults = document.getElementById("noResults");
+						console.log(Object.keys(results).length);
+						if((Object.keys(results).length)<1){
+							noResults.style.display="block";
+						}else{
+							noResults.style.display="none";
+							
+						}
 						for (var patient in results) {
 							if(results.hasOwnProperty(patient)){
 								patData = results[patient];

@@ -1,6 +1,6 @@
 function numberOfCols(){
 	var cols = 12;
-	if(window.innerWidth < 1400 && window.innerWidth > 945){
+	if(window.innerWidth < 1350 && window.innerWidth > 945){
 		cols = 6;
 	}else if(window.innerWidth < 945){
 		cols = 3;
@@ -577,7 +577,9 @@ function plotDateAndTime(canvasID) {
 			
 			timeSections = gridData['data']['time'][i].split(":");
 			time = timeSections[0]+":"+ timeSections[1];
-	
+			if(time.indexOf("undefined") > -1){
+				time="-";
+			}
 			context.fillText(date,textX,yDate);
 			context.fillText(time,textX,yTime);
 		   
