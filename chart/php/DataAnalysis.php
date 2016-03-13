@@ -1,226 +1,180 @@
 <?php
 
-
-
 //testModule();
+
 function testModule(){
-	$result = NEWScore(33, 98, "RA", 37.0, 120, 90, "A");
+	$patientObsDataSet= array();
+	$patientObsDataSet["respRate"] = 20;
+	$patientObsDataSet["spO2"] = 96;
+	$patientObsDataSet["inspiredO2"]= "RA";
+	$patientObsDataSet["temp"] = 36.1;
+	$patientObsDataSet["sistBP"]=  90;
+	$patientObsDataSet["heartRate"]= 90;
+	$patientObsDataSet["AVPU"]="A";
+	
+	$result = ACEWScore($patientObsDataSet);
 	echo($result[0]);
 	echo(" -  - ");
 	echo($result[1]);
 }
 
+
 function calculateObsScores($obsDataSet){
 	for($i=0;$i<count($obsDataSet);$i++){
-		$score = NEWScore($obsDataSet[$i]["respRate"], $obsDataSet[$i]["spO2"], $obsDataSet[$i]["inspiredO2"], $obsDataSet[$i]["temp"], $obsDataSet[$i]["sistBP"], $obsDataSet[$i]["heartRate"], $obsDataSet[$i]["AVPU"]);
-		if($score[1]==""){
-			$score[1]="!";
-		}
+		$score = ACEWScore($obsDataSet[$i]);
+		
+		If ($score[1] === 0){$score[1] = "0";}
+		
 		$obsDataSet[$i]["totalScore"] =$score[1];
 		$obsDataSet[$i]["escPlan"] =$score[0];
-		
-		//$scoreArr = array('score'=> $score[1], 'esc'=>$score[0]);
-		//$obsDataSet[$i]["totalScore"] = $scoreArr;
-		//var_dump($score);
 	}                      
+	
 	return $obsDataSet;
 }
 
-function NEWScore($respRate, $SpO2, $O2pct, $temp, $systBP, $heartRate, $APVU) {
+
+
+
+function ACEWScore($patientObsDataSet, $triggerArray = array(2,4,6)) {
 	
 	//Declare variables
-	$observationsArray;
+	$observationsArray = array("respRate", "spO2", "inspiredO2", "temp", "sistBP", "heartRate", "AVPU" );
+	
 	$obsParamArray;
-	$newsScoreArray;
-	$indexer;          
-	$newsScore;
+	$specialThresholdsArray;
+	$scoreArray;
+	
+	$ACEWScore = 0;
+	$qTrigger = 1;
+	$qMET = "No";
 	$outcomes;
-	$qMETn = "No";
-
-	//populate the observationsArray with all observations taken at the time
-    $observationsArray = array("", $respRate, $temp, $systBP, "", $heartRate, $APVU, $SpO2, $O2pct);
-
+	$compareParam;
+	
+	
 
 
+	
+	
+	
+	//populate the obsParamArray with the thresholds for each parameter
 	//retrieve parameter thresholds or else load default
-	for ($indexer=0; $indexer <= 8; $indexer++) {
-		Switch ($indexer) {
-			Case 0:
-				$obsParamArray[$indexer] = array("nul", "nul", "nul", "nul", "nul", "nul", "nul");
-				break;
-			Case 1:
-				$obsParamArray[$indexer] = array("norm", 20, 20, 24, 12, 9, 9);
-				break;
-			Case 2:
-				$obsParamArray[$indexer] = array("norm", 38.0, 39.0, "nul", 36.1, 35.1, 35.1);
-				break;
-			Case 3:
-				$obsParamArray[$indexer] = array("norm", 219, 219, 219, 111, 101, 91);
-				break;
-			Case 4:
-				$obsParamArray[$indexer] = array("nul", "nul", "nul", "nul", "nul", "nul", "nul");
-				break;
-			Case 5:
-				$obsParamArray[$indexer] = array("norm", 90, 110, 130, 51, 41, 41);
-				break;
-			Case 6:
-				$obsParamArray[$indexer] = array("A", "V", "P", "U", "nul", "nul", "nul");
-				break;
-			Case 7:
-				$obsParamArray[$indexer] = array("norm", "nul", "nul", "nul", 96, 94, 92);
-				break;
-			Case 8:
-				$obsParamArray[$indexer] = array("RA", 0, 0, "nul", "nul", "nul", "nul");
-				break;
-		}
-	}
-
-
-
-	//compare scores against thresholds
-	for ($indexer=0; $indexer <= 8; $indexer++) {
-		Switch ($indexer)  {
-			Case 0:
-				$newsScoreArray[$indexer] = 0;
-				if ($observationsArray[$indexer] == $obsParamArray[$indexer][0]) {$newsScoreArray[$indexer] = 0;}
-				elseif ($observationsArray[$indexer] == "") {$newsScoreArray[$indexer] = 0;}
-				elseif ($observationsArray[$indexer] == $obsParamArray[$indexer][3] and $obsParamArray[$indexer][3] !== "nul") {$newsScoreArray[$indexer] = 3;}
-				elseif ($observationsArray[$indexer] == $obsParamArray[$indexer][2] and $obsParamArray[$indexer][2] !== "nul") {$newsScoreArray[$indexer] = 2;}
-				elseif ($observationsArray[$indexer] == $obsParamArray[$indexer][1] and $obsParamArray[$indexer][1] !== "nul") {$newsScoreArray[$indexer] = 1;}
-				elseif ($observationsArray[$indexer] == $obsParamArray[$indexer][6] and $obsParamArray[$indexer][6] !== "nul") {$newsScoreArray[$indexer] = 3;}
-				elseif ($observationsArray[$indexer] == $obsParamArray[$indexer][5] and $obsParamArray[$indexer][5] !== "nul") {$newsScoreArray[$indexer] = 2;}
-				elseif ($observationsArray[$indexer] == $obsParamArray[$indexer][4] and $obsParamArray[$indexer][4] !== "nul") {$newsScoreArray[$indexer] = 1;}
-				
-				
-				break;
-			
-			Case 1:
-				$newsScoreArray[$indexer] = 0;
-				If ($observationsArray[$indexer] == $obsParamArray[$indexer][0]) {$newsScoreArray[$indexer] = 0;}
-				ElseIf ($observationsArray[$indexer] == "") {$newsScoreArray[$indexer] = 0;}
-				ElseIf ($observationsArray[$indexer] > $obsParamArray[$indexer][3] and $obsParamArray[$indexer][3] !== "nul") {$newsScoreArray[$indexer] = 3;}
-				ElseIf ($observationsArray[$indexer] > $obsParamArray[$indexer][2] and $obsParamArray[$indexer][2] !== "nul") {$newsScoreArray[$indexer] = 2;}
-				ElseIf ($observationsArray[$indexer] > $obsParamArray[$indexer][1] and $obsParamArray[$indexer][1] !== "nul") {$newsScoreArray[$indexer] = 1;}
-				ElseIf ($observationsArray[$indexer] < $obsParamArray[$indexer][6] and $obsParamArray[$indexer][6] !== "nul") {$newsScoreArray[$indexer] = 3;}
-				ElseIf ($observationsArray[$indexer] < $obsParamArray[$indexer][5] and $obsParamArray[$indexer][5] !== "nul") {$newsScoreArray[$indexer] = 2;}
-				ElseIf ($observationsArray[$indexer] < $obsParamArray[$indexer][4] and $obsParamArray[$indexer][4] !== "nul") {$newsScoreArray[$indexer] = 1;}
-				
-				
-				If ($observationsArray[$indexer] > 30 And $observationsArray[$indexer] !== "") {$qMETn = "MET";}
-
-				If ($observationsArray[$indexer] < 8 And $observationsArray[$indexer] !== "") {$qMETn = "MET";}
-				break;
-			
-			Case 2:
-				$newsScoreArray[$indexer] = 0;
-				If ($observationsArray[$indexer] == $obsParamArray[$indexer][0]) {$newsScoreArray[$indexer] = 0;}
-				ElseIf ($observationsArray[$indexer] == "") {$newsScoreArray[$indexer] = 0;}
-				ElseIf ($observationsArray[$indexer] > $obsParamArray[$indexer][3] and $obsParamArray[$indexer][3] !== "nul") {$newsScoreArray[$indexer] = 3;}
-				ElseIf ($observationsArray[$indexer] > $obsParamArray[$indexer][2] and $obsParamArray[$indexer][2] !== "nul") {$newsScoreArray[$indexer] = 2;}
-				ElseIf ($observationsArray[$indexer] > $obsParamArray[$indexer][1] and $obsParamArray[$indexer][1] !== "nul") {$newsScoreArray[$indexer] = 1;}
-				ElseIf ($observationsArray[$indexer] < $obsParamArray[$indexer][6] and $obsParamArray[$indexer][6] !== "nul") {$newsScoreArray[$indexer] = 3;}
-				ElseIf ($observationsArray[$indexer] < $obsParamArray[$indexer][5] and $obsParamArray[$indexer][5] !== "nul") {$newsScoreArray[$indexer] = 2;}
-				ElseIf ($observationsArray[$indexer] < $obsParamArray[$indexer][4] and $obsParamArray[$indexer][4] !== "nul") {$newsScoreArray[$indexer] = 1;}
-				break;
-			
-			Case 3:
-				$newsScoreArray[$indexer] = 0;
-				If ($observationsArray[$indexer] == $obsParamArray[$indexer][0]) {$newsScoreArray[$indexer] = 0;}
-				ElseIf ($observationsArray[$indexer] == "") {$newsScoreArray[$indexer] = 0;}
-				ElseIf ($observationsArray[$indexer] > $obsParamArray[$indexer][3] and $obsParamArray[$indexer][3] !== "nul") {$newsScoreArray[$indexer] = 3;}
-				ElseIf ($observationsArray[$indexer] > $obsParamArray[$indexer][2] and $obsParamArray[$indexer][2] !== "nul") {$newsScoreArray[$indexer] = 2;}
-				ElseIf ($observationsArray[$indexer] > $obsParamArray[$indexer][1] and $obsParamArray[$indexer][1] !== "nul") {$newsScoreArray[$indexer] = 1;}
-				ElseIf ($observationsArray[$indexer] < $obsParamArray[$indexer][6] and $obsParamArray[$indexer][6] !== "nul") {$newsScoreArray[$indexer] = 3;}
-				ElseIf ($observationsArray[$indexer] < $obsParamArray[$indexer][5] and $obsParamArray[$indexer][5] !== "nul") {$newsScoreArray[$indexer] = 2;}
-				ElseIf ($observationsArray[$indexer] < $obsParamArray[$indexer][4] and $obsParamArray[$indexer][4] !== "nul") {$newsScoreArray[$indexer] = 1;}
-				If ($observationsArray[$indexer] < 90 And $observationsArray[$indexer] !== "") {$qMETn = "MET";}
-				break;
-			
-			Case 4:
-				$newsScoreArray[$indexer] = 0;
-				If ($observationsArray[$indexer] == $obsParamArray[$indexer][0]) {$newsScoreArray[$indexer] = 0;}
-				ElseIf ($observationsArray[$indexer] == "") {$newsScoreArray[$indexer] = 0;}
-				ElseIf ($observationsArray[$indexer] > $obsParamArray[$indexer][3] and $obsParamArray[$indexer][3] !== "nul") {$newsScoreArray[$indexer] = 3;}
-				ElseIf ($observationsArray[$indexer] > $obsParamArray[$indexer][2] and $obsParamArray[$indexer][2] !== "nul") {$newsScoreArray[$indexer] = 2;}
-				ElseIf ($observationsArray[$indexer] > $obsParamArray[$indexer][1] and $obsParamArray[$indexer][1] !== "nul") {$newsScoreArray[$indexer] = 1;}
-				ElseIf ($observationsArray[$indexer] < $obsParamArray[$indexer][6] and $obsParamArray[$indexer][6] !== "nul") {$newsScoreArray[$indexer] = 3;}
-				ElseIf ($observationsArray[$indexer] < $obsParamArray[$indexer][5] and $obsParamArray[$indexer][5] !== "nul") {$newsScoreArray[$indexer] = 2;}
-				ElseIf ($observationsArray[$indexer] < $obsParamArray[$indexer][4] and $obsParamArray[$indexer][4] !== "nul") {$newsScoreArray[$indexer] = 1;}
-				break;
-			
-			Case 5:
-				$newsScoreArray[$indexer] = 0;
-				If ($observationsArray[$indexer] == $obsParamArray[$indexer][0]) {$newsScoreArray[$indexer] = 0;}
-				ElseIf ($observationsArray[$indexer] == "") {$newsScoreArray[$indexer] = 0;}
-				ElseIf ($observationsArray[$indexer] > $obsParamArray[$indexer][3] and $obsParamArray[$indexer][3] !== "nul") {$newsScoreArray[$indexer] = 3;}
-				ElseIf ($observationsArray[$indexer] > $obsParamArray[$indexer][2] and $obsParamArray[$indexer][2] !== "nul") {$newsScoreArray[$indexer] = 2;}
-				ElseIf ($observationsArray[$indexer] > $obsParamArray[$indexer][1] and $obsParamArray[$indexer][1] !== "nul") {$newsScoreArray[$indexer] = 1;}
-				ElseIf ($observationsArray[$indexer] < $obsParamArray[$indexer][6] and $obsParamArray[$indexer][6] !== "nul") {$newsScoreArray[$indexer] = 3;}
-				ElseIf ($observationsArray[$indexer] < $obsParamArray[$indexer][5] and $obsParamArray[$indexer][5] !== "nul") {$newsScoreArray[$indexer] = 2;}
-				ElseIf ($observationsArray[$indexer] < $obsParamArray[$indexer][4] and $obsParamArray[$indexer][4] !== "nul") {$newsScoreArray[$indexer] = 1;}
-				
-				If ($observationsArray[$indexer] > 130 And $observationsArray[$indexer] !== "") {$qMETn = "MET";}
-				If ($observationsArray[$indexer] < 40 And $observationsArray[$indexer] !== "") {$qMETn = "MET";}
-				break;
-			
-			Case 6:
-				$newsScoreArray[$indexer] = 0;
-				If ($observationsArray[$indexer] == $obsParamArray[$indexer][0]) {$newsScoreArray[$indexer] = 0;}
-				ElseIf ($observationsArray[$indexer] == "") {$newsScoreArray[$indexer] = 0;}
-				ElseIf ($observationsArray[$indexer] == $obsParamArray[$indexer][3] and $obsParamArray[$indexer][3] !== "nul") {$newsScoreArray[$indexer] = 3;}
-				ElseIf ($observationsArray[$indexer] == $obsParamArray[$indexer][2] and $obsParamArray[$indexer][2] !== "nul") {$newsScoreArray[$indexer] = 3;}
-				ElseIf ($observationsArray[$indexer] == $obsParamArray[$indexer][1] and $obsParamArray[$indexer][1] !== "nul") {$newsScoreArray[$indexer] = 3;}
-				ElseIf ($observationsArray[$indexer] == $obsParamArray[$indexer][6] and $obsParamArray[$indexer][6] !== "nul") {$newsScoreArray[$indexer] = 3;}
-				ElseIf ($observationsArray[$indexer] == $obsParamArray[$indexer][5] and $obsParamArray[$indexer][5] !== "nul") {$newsScoreArray[$indexer] = 2;}
-				ElseIf ($observationsArray[$indexer] == $obsParamArray[$indexer][4] and $obsParamArray[$indexer][4] !== "nul") {$newsScoreArray[$indexer] = 1;}
-				
-				If ($observationsArray[$indexer] == "P" And $observationsArray[$indexer] !== "") {$qMETn = "MET";}
-				break;
-			
-			Case 7:
-				$newsScoreArray[$indexer] = 0;
-				If ($observationsArray[$indexer] == $obsParamArray[$indexer][0]) {$newsScoreArray[$indexer] = 0;}
-				ElseIf ($observationsArray[$indexer] == "") {$newsScoreArray[$indexer] = 0;}
-				ElseIf ($observationsArray[$indexer] > $obsParamArray[$indexer][3] and $obsParamArray[$indexer][3] !== "nul") {$newsScoreArray[$indexer] = 3;}
-				ElseIf ($observationsArray[$indexer] > $obsParamArray[$indexer][2] and $obsParamArray[$indexer][2] !== "nul") {$newsScoreArray[$indexer] = 2;}
-				ElseIf ($observationsArray[$indexer] > $obsParamArray[$indexer][1] and $obsParamArray[$indexer][1] !== "nul") {$newsScoreArray[$indexer] = 1;}
-				ElseIf ($observationsArray[$indexer] < $obsParamArray[$indexer][6] and $obsParamArray[$indexer][6] !== "nul") {$newsScoreArray[$indexer] = 3;}
-				ElseIf ($observationsArray[$indexer] < $obsParamArray[$indexer][5] and $obsParamArray[$indexer][5] !== "nul") {$newsScoreArray[$indexer] = 2;}
-				ElseIf ($observationsArray[$indexer] < $obsParamArray[$indexer][4] and $obsParamArray[$indexer][4] !== "nul") {$newsScoreArray[$indexer] = 1;}
-				break;
-			
-			Case 8:
-				$newsScoreArray[$indexer] = 0;
-				If ($observationsArray[$indexer] !== $obsParamArray[$indexer][0] and $observationsArray[$indexer] !== "") {$newsScoreArray[$indexer] = 2;}
-				break;
-		}
-	}	
 	
+    $obsParamArray=array();
+	$obsParamArray["respRate"] 	= 	array	(array(20, 24, 12, 9), 			array(">", ">", "<", "<"), 		array(2,3,1,3)		);
+	$obsParamArray["spO2"] 		=	array	(array(96, 94, 92),				array("<", "<", "<"), 			array(1,2,3)		);
+	$obsParamArray["inspiredO2"]=	array	(array("RA", 0), 				array("=", ">"), 				array(0,2)			);
+	$obsParamArray["temp"] 		=	array	(array(38.0, 39.0, 36.1, 35.1), array(">", ">", "<", "<"), 		array(1,2,1,3)		);
+	$obsParamArray["sistBP"] 	=	array	(array(219, 111, 101, 91), 		array(">", "<", "<", "<"), 		array(3,1,2,3)		);
+	$obsParamArray["heartRate"]	=  	array	(array(90, 110, 130, 51, 41), 	array(">", ">", ">", "<", "<"), array(1,2,3,1,3)	);
+	$obsParamArray["AVPU"] 		=	array	(array("A", "V", "P", "U"), 	array("=", "=", "=", "="), 		array(0,3,3,3)		);
+	
+	
+	//set special parameter thresholds
+	$specialThresholdsArray=array();
+	$specialThresholdsArray["respRate"] 	= array		(array(8, 30), 		array("<", ">"), 	array(3,3)		);
+	$specialThresholdsArray["spO2"] 		= array		(array(), 			array("=", ">"), 	array()			);
+	$specialThresholdsArray["inspiredO2"] 	= array		(array(), 			array("=", ">"), 	array()			);
+	$specialThresholdsArray["temp"]			= array		(array(), 			array("=", ">"), 	array()			);
+	$specialThresholdsArray["sistBP"]		= array		(array(90), 		array("<"), 		array(3)		);
+	$specialThresholdsArray["heartRate"]	= array		(array(40, 130), 	array("<", ">"), 	array(3,3)		);
+	$specialThresholdsArray["AVPU"]			= array		(array("P"), 		array("="), 		array(3)		);
+	
+	
+	//set score array to 0
+	$scoreArray = array();
+	$scoreArray["respRate"] = 0;
+	$scoreArray["spO2"] = 0;
+	$scoreArray["inspiredO2"] = 0;
+	$scoreArray["temp"]= 0;
+	$scoreArray["sistBP"]=0; 
+	$scoreArray["heartRate"]=0;
+	$scoreArray["AVPU"]=0;
 
 	
 	
-//>>trigger METs?
-	$newsScore = 0;
-//If ($qMETn == "MET"){$qMETn = "Esc";}
-	//$qMETn = "No"
-	If ($qMETn !== "MET") {
-		foreach ($newsScoreArray as $score) {
-			$newsScore = $newsScore + $score;
-		If ($newsScore > 4) {$qMETn = "Esc";}
-		If ($score > 2) {$qMETn = "Esc";}
-		If ($newsScore > 7) {$qMETn = "MET";}
+	//compare observation values against thresholds
+	foreach ($observationsArray as $observation){
+
+		for ($i=0; $i<sizeof($obsParamArray[$observation][0]); $i++){
+	
+			$compareParam = compareParam($patientObsDataSet[$observation], $obsParamArray[$observation][0][$i]);			
+		    If ($compareParam == $obsParamArray[$observation][1][$i]){
+				If ($scoreArray[$observation] > $obsParamArray[$observation][2][$i]){
+					$scoreArray[$observation] = $scoreArray[$observation];
+				}else{
+					$scoreArray[$observation] = $obsParamArray[$observation][2][$i];
+				}
+			}else{
+				If ($scoreArray[$observation] > 0){
+					$scoreArray[$observation] = $scoreArray[$observation];
+				}else{
+					$scoreArray[$observation] = 0;
+				}
+			}
 		}
+		
+		
+		
+		//compare observation values against special parameters for METs
+		for ($i=0; $i<sizeof($specialThresholdsArray[$observation][0]); $i++){
+			
+			$compareParam = compareParam($patientObsDataSet[$observation], $specialThresholdsArray[$observation][0][$i]);	
+			If ($compareParam == $specialThresholdsArray[$observation][1][$i]){
+				$qTrigger = $qTrigger * $specialThresholdsArray[$observation][2][$i];
+			}
+		}	
+		
+		//trigger an escalation if any parameter scores 3
+		if ($scoreArray[$observation] > $triggerArray[0]){$qTrigger = $qTrigger * 2;}
+	
+		
 	}
 
-	If ($newsScore == 0) {
-		foreach ($newsScoreArray as $score) {
-			$newsScore = $newsScore + $score;
-		}
+	
+	//Total scores for ACEWScore and affect triggering through totals
+	
+	foreach ($observationsArray as $observation){
+		$ACEWScore += $scoreArray[$observation];
 	}
+	If($ACEWScore > $triggerArray[1]){$qTrigger = $qTrigger * 2;}
+	elseIf($ACEWScore > $triggerArray[2]){$qTrigger = $qTrigger * 3;}
+	else{$qTrigger = $qTrigger;}
+	
+	//trigger METs/escalations?
+	If (($qTrigger % 3) == 0){$qMET = "MET";}
+	ElseIf (($qTrigger % 2) == 0){$qMET = "Esc";}
+	Else{$qMET = "No";}
 
-	//return scores
-	$outcomes = array($qMETn, $newsScore);
+	
+	
+	//validate input data - ensure no blanks
+	foreach ($observationsArray as $observation){
+		If ($patientObsDataSet[$observation] == "" or $patientObsDataSet[$observation] === ""or $patientObsDataSet[$observation] == null){
+			$qMET = "No";
+			$ACEWScore = "-";
+		}
+		
+	}
+	
+		
+	//return outcomes
+	$outcomes = array($qMET, $ACEWScore);
 	return $outcomes;
 }
+
+
+// functino to compare parameters and return how one compares with the other
+function compareParam($param, $comparitor){
+	$compareParam;
+	
+	if($param == null or $param == "" or $param === 0 or $param == "null"){$compareParam = 0;}
+	elseif($param < $comparitor){$compareParam = "<";}
+	elseif($param > $comparitor){$compareParam = ">";}
+	elseif($param == $comparitor){$compareParam = "=";}
+	else{$compareParam = 0;}
+	
+	return $compareParam;
+}
+
 
 ?>

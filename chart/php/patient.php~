@@ -15,7 +15,7 @@ class Patient {
     public $bed;
     public $obsData;
     
-    public function __construct($patNum, $tableName=""){
+    public function __construct($patNum){
     	$this->patNum = $patNum;
         $this->database = new Database();
 
@@ -38,11 +38,7 @@ class Patient {
 				$this->getCurrentObsData();
             }else{
             	//insert new patient into current patient table
-            	if($tableName != ""){
-            		$this->tableName = $tableName;
-            	}else{
-            		$this->tableName = $this->createTableName();
-				}
+				$this->tableName = $this->createTableName();
 				$this->addObsTable();
 			}
         }else{
@@ -53,15 +49,15 @@ class Patient {
     }
     
     private function createTableName(){
-    	$name = 'CT'.$this->hosNum;
+    	$name = 'Testy'.$this->hosNum;
     	return $name;
     }
    
-    public function addObsTable(){
+    private function addObsTable(){
 
     	$createQuery = "CREATE TABLE ".$this->tableName."
 						(
-						`Field01` bigint(20) NOT NULL auto_increment,
+						`Field01` bigint(20) NOT NULL,
 						`Field02` date NOT NULL, 
 						`Field03` mediumint(20) NOT NULL, 
 						`Field04` int, 
@@ -183,10 +179,10 @@ class Patient {
 						`Field06`, `Field07`, `Field08`, `Field09`, `Field10`, 
 						`Field11`, `Field12`, `Field13`, `Field14`, `Field15`, 
 						`Field16`, `Field17`, `Field18`, `Field19`) VALUES 
-						('".$field02."', '".$field03."', '".$field04."', '".$field05."', 
-						'".$field06."', '".$field07."', '".$field08."', '".$field09."', '".$field10."', 
-						'".$field11."', '".$field12."', '".$field13."', '".$field14."', '".$field15."', 
-						'".$field16."', '".$field17."', '".$field18."', '".$field19."')";
+						('".$field02."', '".$field03."', ".$field04.", ".$field05.", 
+						'".$field06."', ".$field07.", ".$field08.", ".$field09.", ".$field10.", 
+						'".$field11."', ".$field12.", ".$field13.", ".$field14.", '".$field15."', 
+						'".$field16."', '".$field17."', '".$field18."', ".$field19.")";
 		
 		$this->database->query($insertQuery);
 	

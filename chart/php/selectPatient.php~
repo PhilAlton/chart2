@@ -96,14 +96,9 @@
 				}
 			}
 			
-			function selectPatient(selectedRow){
-				var table = document.getElementById("searchResultsTable");
-				for (var i = 1, row; row = table.rows[i]; i++) {
-				   row.style.background="#FFF";
-				}
-				
-				var patId = $(selectedRow).data('ref');
-				selectedRow.style.background="#CEF6F5";
+			function selectPatient(row){
+				var patId = $(row).data('ref');
+				row.style.background="blue";
 				var btn = document.getElementById("submitBtn");
 				$("#submitBtn").data('selected',patId);
 				btn.disabled = false;
