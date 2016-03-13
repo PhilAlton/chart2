@@ -1,0 +1,337 @@
+@charset "utf-8";
+
+@import url("template.css");
+
+* {
+	font-size: 100%;
+	font-family: "Arial";
+}
+
+body{
+	padding-bottom:25px; 
+}
+
+table {
+	width: 100%;
+	height: 100%;
+	
+	table-layout: fixed;
+	
+	border-collapse: collapse;
+	color:#404040;
+	position:relative;
+	
+}
+
+#dateTable{
+	border-bottom-left-radius: 3px;
+	border-bottom-right-radius: 3px;
+  
+	-webkit-box-shadow: 0 0 90px rgba(255, 255, 255, 0.5), 0 1px 2px rgba(0, 0, 0, 0.3);
+	box-shadow: 0 0 90px rgba(255, 255, 255, 0.5), 0 1px 2px rgba(0, 0, 0, 0.3);
+	
+}
+
+tr {
+	margin: 0;
+	padding: 0;
+	
+}
+
+td {
+	margin: 0;
+	padding: 0;
+	
+}
+
+div.category { /* holds an entire category i.e. temperature */
+	width: 98%;
+	padding-top: 10px;
+	position: relative;
+	margin: 0 auto;
+	
+  
+	
+}
+                                                                                                   
+td.titleContainer { /* container for lhs - doesnt always contain both title + values */
+	width: 210px;
+	color:#404040;
+	
+}
+
+td.keyContainer { /* container for the key component */
+	width: 208px;
+}
+
+.headerContainer { /* container for name, d.o.b, admission date */
+	width:98%;
+	margin: 0 auto;
+	background:#FAFAFC;
+	border-top-left-radius: 3px;
+	border-top-right-radius: 3px;
+  
+	-webkit-box-shadow: 0 0 90px rgba(255, 255, 255, 0.5), 0 1px 2px rgba(0, 0, 0, 0.3);
+	box-shadow: 0 0 90px rgba(255, 255, 255, 0.5), 0 1px 2px rgba(0, 0, 0, 0.3);
+}
+.headerContainer td{
+	background:#FAFAFC;
+}
+
+.headerContainer table{
+	border-top-left-radius: 3px;
+	border-top-right-radius: 3px;
+}
+
+
+td.title { /* title for the category */
+	width: 118px;
+	text-align: center;
+	font-weight: bold;
+
+	border-bottom: black solid 2px;
+border-top-left-radius: 3px;
+border-bottom-left-radius: 3px;
+}
+
+td.bigTitle { /* title with no values */
+	font-weight: bold;
+	text-align: center;
+
+
+/*	border-top: black solid 1px;
+	border-bottom: black solid 2px;
+	border-left: black solid 2px;*/
+}
+
+td.smallTitleLeft { /* title with no values - on the Left of form */
+	font-weight: bold;
+	text-align: right;
+	font-size: 10pt;
+	padding-right: 2px;
+	border-top: #909092 solid 1px;
+	background:#FAFAFC;
+	color:#404040;
+}
+
+td.smallTitleRight { /* title with no values - on the right of form */
+	font-weight: bold;
+	text-align: left;
+	font-size: 10pt;
+
+	padding-left: 2px;
+	border-top: #909092 solid 1px;
+	background:#FAFAFC;
+	color:#404040;
+
+
+}
+
+td.verticalTitle { /* title with vertical text on left of form */
+/*	border-top: black solid 1px;
+	border-left: black solid 2px;
+	border-bottom: black solid 2px;*/
+
+	width: 25%;
+	padding-top: 20px;
+	text-align: center;
+
+	font-size: 10pt
+}
+
+td.values { /* all of the values */
+	width: 88px;
+
+}
+
+
+
+td.valuestdLeft { /* values for left side of form */
+	font-size: 9pt;
+
+	text-align: right;
+
+	color:#404040;
+	
+	border-left: solid #909092 1px;
+	
+	border-collapse: collapse;
+	background:#FAFAFC;
+}
+
+
+
+td.valuestdRight { /* values for right side of form */
+	font-size: 9pt;
+
+	text-align: left;
+	
+	border-top: solid #909092 1px;
+	border-bottom: solid #909092 1px;
+	border-right: solid #909092 2px;
+	border-collapse: collapse;
+	background:#FAFAFC;
+}
+
+td.cells { /* all of the cells */
+	padding: 0;
+	display: inline-block;
+	border: solid black 1px;
+	border-bottom: solid black 2px;
+}
+
+
+
+
+td.cell { /* individual cells in grid */
+	border: solid black 1px;
+	
+}
+
+td.severity { /* contains all severities */
+	width: 30px;
+	padding: 0;
+	
+	display: inline-block;
+}
+
+td.severitytd { /* contains individual severities */
+	text-align: center;
+	font-weight: bold;
+	border: 3px solid white;
+	color:black;
+	
+}
+
+
+td.headerTitle {
+	font-size: 10pt;
+	padding-left: 3px;
+	text-align: left;
+	font-weight: bold;
+
+}
+
+td.headerData {
+	font-size: 14pt;
+	padding-left: 3px;
+	text-align: left;
+	font-weight: bold;
+
+}
+
+td.keys {
+	margin: 10px;
+}
+
+td.key {
+	border: solid black 1px;
+	height: 80%;
+	width: 10px;
+}
+
+.leftVerticalText { /* rotate text to read bottom to top. */
+	-webkit-transform: rotate(270deg); /* only works for chrome - update with others later */
+	-ms-transform: rotate(270deg);
+	text-align: center;
+	font-size: 10pt;
+}
+
+#title {
+	font-weight: bold;
+	font-size: 18pt;
+	text-align: center;
+	color:black;
+	padding:20px;
+}
+
+#newObs{
+	position:relative;
+	float:right;
+	width:50px;
+	height:50px;
+	top:-20px;
+	border-radius:5px;
+	
+  font-weight: bold;
+  color: #527881;
+  text-shadow: 0 1px #e3f1f1;
+  background: #cde5ef;
+  border: 1px solid;
+  border-color: #b4ccce #b3c0c8 #9eb9c2;
+
+  outline: 0;
+  -webkit-box-sizing: content-box;
+  -moz-box-sizing: content-box;
+  box-sizing: content-box;
+  background-image: -webkit-linear-gradient(top, #edf5f8, #cde5ef);
+  background-image: -moz-linear-gradient(top, #edf5f8, #cde5ef);
+  background-image: -o-linear-gradient(top, #edf5f8, #cde5ef);
+  background-image: linear-gradient(to bottom, #edf5f8, #cde5ef);
+  -webkit-box-shadow: inset 0 1px white, 0 1px 2px rgba(0, 0, 0, 0.15);
+  box-shadow: inset 0 1px white, 0 1px 2px rgba(0, 0, 0, 0.15);
+}
+
+#newObs:active {
+  background: #cde5ef;
+  border-color: #9eb9c2 #b3c0c8 #b4ccce;
+  -webkit-box-shadow: inset 0 0 3px rgba(0, 0, 0, 0.2);
+  box-shadow: inset 0 0 3px rgba(0, 0, 0, 0.2);
+}
+
+.graphContainerLeft{
+	width:100%;
+	height:100%;
+	position:relative;
+	/*overflow-y:hidden;
+	overflow-x:scroll;*/
+	overflow:auto;
+	direction:rtl;
+	background:black;
+	-ms-overflow-style: none;
+-webkit-overflow-scrolling: touch;
+	
+	
+}
+
+.graphContainerRight{
+	width:100%;
+	height:100%;
+	position:relative;
+	overflow:hidden;
+	background:black;
+	direction:rtl;
+	
+}
+
+.graphContainerLeft::-webkit-scrollbar{
+	display:none;
+	touch-action: cross-slide-x pan-x
+	-ms-touch-action:none;
+}
+
+.graph{
+	background:white;
+	height:100%;
+	position:relative;
+	
+}
+
+#obsScrollbar{
+	width:100px;
+	height:25px;
+	overflow-x:scroll;
+	overflow-y:hidden;
+	position:fixed;
+	bottom: 0px;
+	direction:rtl;
+
+	
+}
+
+#scrollContentOverflow{
+	height:100%;
+	width:100%;
+	position:relative;
+	
+}
